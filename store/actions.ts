@@ -2,13 +2,14 @@ import SmileState from '../types/SmileState'
 import { ActionTree } from 'vuex'
 import * as types from './mutation-types'
 import config from 'config'
+import fetch from 'isomorphic-fetch'
 import { adjustMultistoreApiUrl } from '@vue-storefront/core/lib/multistore'
 
 export const actions: ActionTree<SmileState, any> = {
   async getCustomerByEmail ({ commit }, email) {
     let url = config.smile.endpoint
-    url = config.storeViews.multistore ? adjustMultistoreApiUrl(url) : url
     url += '/customers/email/' + email
+    url = config.storeViews.multistore ? adjustMultistoreApiUrl(url) : url
 
     const resp = await fetch(url, {
       method: 'GET',
@@ -28,8 +29,8 @@ export const actions: ActionTree<SmileState, any> = {
 
   async getCustomerById ({ commit }, customer_id) {
     let url = config.smile.endpoint
-    url = config.storeViews.multistore ? adjustMultistoreApiUrl(url) : url
     url += '/customers/' + customer_id
+    url = config.storeViews.multistore ? adjustMultistoreApiUrl(url) : url
 
     const resp = await fetch(url, {
       method: 'GET',
@@ -46,8 +47,8 @@ export const actions: ActionTree<SmileState, any> = {
 
   async getCustomers ({}, params) {
     let url = config.smile.endpoint
-    url = config.storeViews.multistore ? adjustMultistoreApiUrl(url) : url
     url += '/customers'
+    url = config.storeViews.multistore ? adjustMultistoreApiUrl(url) : url
     url = new URL(url),
     Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))
 
