@@ -1,9 +1,22 @@
 import { apiStatus } from '../../../lib/util'
 import { Router } from 'express'
+import crypto from 'crypto'
 
 module.exports = ({ config, db }) => {
 
   let smileApi = Router()
+
+  /**
+   * Generate Digest
+   */
+  smileApi.get('/digest/:customerId', (req, res) => {
+    let customerId = req.params.customerId,
+      secret = config.extensions.smile.api.key,
+      text = customerId + secret,
+      digest = crypto.createHash('md5').update(text).digest('hex')
+
+    apiStatus(res, { digest }, 200)
+  })
 
   /**
    * Activities
@@ -15,6 +28,7 @@ module.exports = ({ config, db }) => {
       apiStatus(res, {
         error: 'Activity is required'
       }, 422)
+      return
     }
 
     if (config.extensions.smile.demo) {
@@ -271,12 +285,7 @@ module.exports = ({ config, db }) => {
       apiStatus(res, {
         error: 'Customer ID is required'
       }, 422)
-    }
-
-    if (!points_to_spend) {
-      apiStatus(res, {
-        error: '"Points to spend" is required'
-      }, 422)
+      return
     }
 
     if (config.extensions.smile.demo) {
@@ -406,6 +415,7 @@ module.exports = ({ config, db }) => {
       apiStatus(res, {
         error: 'Points transaction is required'
       }, 422)
+      return
     }
 
     if (config.extensions.smile.demo) {
@@ -528,6 +538,45 @@ module.exports = ({ config, db }) => {
         apiStatus(res, body.error, 500)
       } else {
         apiStatus(res, body, 200)
+      }
+    })
+  })
+
+  /**
+   * Events
+   */
+  smileApi.post('/event/:entity/:action', (req, res) => {
+
+    let topic = req.params.entity + '/' + req.params.action
+
+    let data = req.body.data
+
+    if (!data) {
+      apiStatus(res, {
+        error: 'Data is required'
+      }, 422)
+      return
+    }
+
+    let request = require('request')
+    request({
+      url: config.extensions.smile.api.url + '/events',
+      method: 'POST',
+      auth: {
+        bearer: config.extensions.smile.api.key
+      },
+      json: true,
+      body: {
+        event: {
+          topic,
+          data
+        }
+      }
+    }, (error, response, body) => {
+      if (error) {
+        apiStatus(res, error, 500)
+      } else {
+        apiStatus(res, body, response.statusCode)
       }
     })
   })

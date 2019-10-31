@@ -1,13 +1,14 @@
 export default interface Customer {
-  id: Number,
-  first_name: String,
-  last_name: String,
-  email: String,
-  state: String,
+  id: number,
+  external_id: string,
+  first_name: string,
+  last_name: string,
+  email: string,
+  state: string,
   date_of_birth: Date,
-  points_balance: Number,
-  referral_url: String,
-  vip_tier_id: Number,
+  points_balance: number,
+  referral_url: string,
+  vip_tier_id: number,
   created_at: Date,
   updated_at: Date
 }

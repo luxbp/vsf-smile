@@ -2,7 +2,7 @@ import { VueStorefrontModule, VueStorefrontModuleConfig } from '@vue-storefront/
 import { afterRegistration } from './hooks/afterRegistration'
 import { module } from './store'
 
-const KEY = 'smile'
+export const KEY = 'smile'
 
 const moduleConfig: VueStorefrontModuleConfig = {
   key: KEY,

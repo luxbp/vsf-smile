@@ -1,8 +1,8 @@
 export default interface Reward {
-  id: Number,
-  name: String,
-  description: String,
-  image_url: String,
+  id: number,
+  name: string,
+  description?: string,
+  image_url?: string,
   created_at: Date,
   updated_at: Date
 }

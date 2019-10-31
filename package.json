@@ -27,5 +27,6 @@
   },
   "homepage": "https://github.com/AbsoluteWebServices/vsf-smile#readme",
   "dependencies": {
+    "vue-slider-component": "^3.0.31"
   }
 }
