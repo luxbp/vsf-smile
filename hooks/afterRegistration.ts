@@ -95,8 +95,13 @@ export function afterRegistration({ Vue, config, store, isServer }) {
 
     const reInitUI = () => {
       const _ri = () => {
-        destroy(w)
-        init(w, config, store)
+        const launcher = document.getElementsByClassName('smile-launcher-frame-container')[0]
+
+        if (launcher.classList.contains('smile-launcher-closed')) {
+          destroy(w)
+          init(w, config, store)
+        }
+
         w.removeEventListener('sweettooth-ready', _ri)
       }
 
@@ -108,6 +113,8 @@ export function afterRegistration({ Vue, config, store, isServer }) {
     }
 
     init(w, config, store)
+
+    let reInitInterval
 
     Vue.prototype.$bus.$on('user-after-loggedin', async receivedData => {
       store.commit(KEY + '/' + types.SET_CUSTOMER_EXTERNAL_ID, receivedData.id)
@@ -123,10 +130,14 @@ export function afterRegistration({ Vue, config, store, isServer }) {
       }
 
       reInitUI()
+
+      reInitInterval = setInterval(reInitUI, 60000)
     })
 
     Vue.prototype.$bus.$on('user-before-logout', () => {
       store.commit(KEY + '/' + types.CLEAR)
+
+      clearInterval(reInitInterval)
 
       reInitUI()
     })

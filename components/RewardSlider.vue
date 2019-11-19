@@ -1,9 +1,12 @@
 <template>
-  <div v-if="balance && pointsProductsOptions.length > 1">
-    <vue-slider v-model="selected" :data="pointsProductsOptions" :tooltip="tooltip" :tooltip-formatter="tooltipFormatter" :contained="true" />
-    <slot name="button" :can-afford="canAfford" :purchase-reward="purchaseReward">
-      <button class="button" type="submit" :disabled="!canAfford" @click="purchaseReward">{{ $t('Apply') }}</button>
-    </slot>
+  <div v-if="pointsProductsOptions.length">
+    <template v-if="affordablePointsProductsOptions.length">
+      <vue-slider v-model="selected" :data="affordablePointsProductsOptions" :tooltip="tooltip" :tooltip-formatter="tooltipFormatter" :contained="true" />
+      <slot name="button" :can-afford="canAfford" :purchase-reward="purchaseReward">
+        <button class="button" type="submit" :disabled="!canAfford" @click="purchaseReward">{{ $t('Apply') }}</button>
+      </slot>
+    </template>
+    <h4 v-else>{{ $t('No points') }}</h4>
   </div>
 </template>
 
@@ -47,6 +50,9 @@ export default {
     },
     pointsProductsOptions () {
       return this.$store.getters[KEY + '/getPointsProductsSorted']
+    },
+    affordablePointsProductsOptions () {
+      return this.pointsProductsOptions.filter(item => item.points_price <= this.balance)
     },
     canAfford () {
       return this.balance && this.selected && this.selected.points_price <= this.balance
