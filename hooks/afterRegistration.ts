@@ -97,12 +97,14 @@ export function afterRegistration({ Vue, config, store, isServer }) {
       const _ri = () => {
         const launcher = document.getElementsByClassName('smile-launcher-frame-container')[0]
 
-        if (launcher.classList.contains('smile-launcher-closed')) {
-          destroy(w)
-          init(w, config, store)
+        if (launcher) {
+          if (launcher.classList.contains('smile-launcher-closed')) {
+            destroy(w)
+            init(w, config, store)
+          }
+  
+          w.removeEventListener('sweettooth-ready', _ri)
         }
-
-        w.removeEventListener('sweettooth-ready', _ri)
       }
 
       if (w.Smile) {
