@@ -3,6 +3,9 @@ import { adjustMultistoreApiUrl } from '@vue-storefront/core/lib/multistore'
 import rootStore from '@vue-storefront/core/store'
 import { KEY } from '../index'
 import * as types from '../store/mutation-types'
+import { isServer } from '@vue-storefront/core/helpers'
+import EventBus from '@vue-storefront/core/compatibility/plugins/event-bus'
+import Vue from 'vue'
 
 const init = async (context, config, store) => {
   let digest = null
@@ -27,7 +30,7 @@ const init = async (context, config, store) => {
 
     digest = result.digest
   }
-  
+
   let docBody = context.document.getElementsByTagName('body')[0]
   let initTag = context.document.createElement('div')
 
@@ -56,7 +59,7 @@ const init = async (context, config, store) => {
         auth_token: store.state.smile.customerAuthToken
       })
     }
-    
+
     context.SmileUI.init({
       channel_key: config.smile.public_key
     })
@@ -89,8 +92,8 @@ const destroy = async (context) => {
   context.SmileUI.destroy()
 }
 
-export function afterRegistration({ Vue, config, store, isServer }) {
-  if (!isServer && config.smile && config.smile.public_key) {
+export function afterRegistration (appConfig, store) {
+  if (!isServer && appConfig.smile && appConfig.smile.public_key) {
     const w: any = window
 
     const reInitUI = () => {
@@ -100,9 +103,9 @@ export function afterRegistration({ Vue, config, store, isServer }) {
         if (launcher) {
           if (launcher.classList.contains('smile-launcher-closed')) {
             destroy(w)
-            init(w, config, store)
+            init(w, appConfig, store)
           }
-  
+
           w.removeEventListener('sweettooth-ready', _ri)
         }
       }
@@ -114,11 +117,11 @@ export function afterRegistration({ Vue, config, store, isServer }) {
       }
     }
 
-    init(w, config, store)
+    init(w, appConfig, store)
 
     let reInitInterval
 
-    Vue.prototype.$bus.$on('user-after-loggedin', async receivedData => {
+    EventBus.$on('user-after-loggedin', async receivedData => {
       store.commit(KEY + '/' + types.SET_CUSTOMER_EXTERNAL_ID, receivedData.id)
       if (receivedData.extension_attributes.hasOwnProperty('smile_id')) {
         await store.dispatch(KEY + '/getCustomerById', receivedData.extension_attributes.smile_id)
@@ -136,7 +139,7 @@ export function afterRegistration({ Vue, config, store, isServer }) {
       reInitInterval = setInterval(reInitUI, 60000)
     })
 
-    Vue.prototype.$bus.$on('user-before-logout', () => {
+    appConfig.$on('user-before-logout', () => {
       store.commit(KEY + '/' + types.CLEAR)
 
       clearInterval(reInitInterval)
@@ -144,7 +147,7 @@ export function afterRegistration({ Vue, config, store, isServer }) {
       reInitUI()
     })
 
-    Vue.prototype.$bus.$on('order-after-placed', event => {
+    appConfig.$on('order-after-placed', event => {
       let cart = rootStore.state.cart
       let order = {
         ...event.order,
@@ -153,7 +156,7 @@ export function afterRegistration({ Vue, config, store, isServer }) {
       store.dispatch(KEY + '/orderUpdated', order)
     })
 
-    Vue.prototype.$bus.$on('smile-points-spent', () => {
+    appConfig.$on('smile-points-spent', () => {
       reInitUI()
     })
   }
