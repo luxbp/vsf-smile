@@ -139,7 +139,7 @@ export function afterRegistration (appConfig, store) {
       reInitInterval = setInterval(reInitUI, 60000)
     })
 
-    appConfig.$on('user-before-logout', () => {
+    EventBus.$on('user-before-logout', () => {
       store.commit(KEY + '/' + types.CLEAR)
 
       clearInterval(reInitInterval)
@@ -147,7 +147,7 @@ export function afterRegistration (appConfig, store) {
       reInitUI()
     })
 
-    appConfig.$on('order-after-placed', event => {
+    EventBus.$on('order-after-placed', event => {
       let cart = rootStore.state.cart
       let order = {
         ...event.order,
@@ -156,7 +156,7 @@ export function afterRegistration (appConfig, store) {
       store.dispatch(KEY + '/orderUpdated', order)
     })
 
-    appConfig.$on('smile-points-spent', () => {
+    EventBus.$on('smile-points-spent', () => {
       reInitUI()
     })
   }

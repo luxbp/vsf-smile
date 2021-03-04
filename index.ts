@@ -8,6 +8,6 @@ export const KEY = 'smile'
 
 export const SmileModule: StorefrontModule = function ({ store, router, appConfig }) {
   StorageManager.init(KEY)
-  afterRegistration(appConfig, store)
   store.registerModule(KEY, module)
+  afterRegistration(appConfig, store)
 }
